@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <title>小背记单词</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #fdf6e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: fit-content;
+            text-align: center;
+            /* 通过内边距来实现比内容宽30%的视觉效果 */
+        }
+
+        h1 {
+            color: #0000ff;
+            font-size: 40px !important; 
+            margin-bottom: 20px;
+        }
+
+            #word-card {
+            background-color: #ffdab9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* 新增样式，确保宽度改变时仍居中 */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #word {
+            color: #333;
+            font-size: 40px;
+            font-weight: bold;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+
+        .option {
+            background-color: #b0e0e6;
+            border: none;
+            border-radius: 10px;
+            color: #333;
+            cursor: pointer;
+            font-size: 24px;
+            margin: 10px;
+            padding: 15px;
+            transition: background-color 0.3s ease;
+            /* 让选项宽度适应内容 */
+            width: fit-content; 
+         }
+        
+        .option:hover {
+            background-color: #87ceeb;
+        }
+
+        .correct {
+            background-color: #90ee90;
+            color: #fff;
+        }
+
+        .incorrect {
+            background-color: #ff6961;
+            color: #fff;
+        }
+
+        #options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            /* 调整选项布局，使两个选项为一行 */
+            max-width: 600px; 
+            margin: 0 auto;
+            /* 新增属性，控制选项在容器内平均分布 */
+            justify-content: space-around; 
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>小背记单词</h1>
+        <div id="word-card">
+            <p id="word" class="text-3xl font-bold mb-2">apple</p>
+        </div>
+        <div id="options-container" class="mb-4">
+            <!-- 选项将通过 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }        const words = [
+            // 日常用品
+            {
+                word: 'toothbrush',
+                meaning: '牙刷',
+                options: ['牙刷', '梳子', '镜子', '毛巾']
+            },
+            {
+                word: 'comb',
+                meaning: '梳子',
+                options: ['牙刷', '梳子', '镜子', '毛巾']
+            },
+            {
+                word: 'mirror',
+                meaning: '镜子',
+                options: ['牙刷', '梳子', '镜子', '毛巾']
+            },
+            {
+                word: 'towel',
+                meaning: '毛巾',
+                options: ['牙刷', '梳子', '镜子', '毛巾']
+            },
+            {
+                word: 'toothpaste',
+                meaning: '牙膏',
+                options: ['牙膏', '香皂', '脸盆', '拖鞋']
+            },
+            {
+                word: 'soap',
+                meaning: '香皂',
+                options: ['牙膏', '香皂', '脸盆', '拖鞋']
+            },
+            {
+                word: 'washbasin',
+                meaning: '脸盆',
+                options: ['牙膏', '香皂', '脸盆', '拖鞋']
+            },
+            {
+                word: 'slippers',
+                meaning: '拖鞋',
+                options: ['牙膏', '香皂', '脸盆', '拖鞋']
+            },
+            // 动物
+            {
+                word: 'elephant',
+                meaning: '大象',
+                options: ['大象', '狮子', '老虎', '长颈鹿']
+            },
+            {
+                word: 'lion',
+                meaning: '狮子',
+                options: ['大象', '狮子', '老虎', '长颈鹿']
+            },
+            {
+                word: 'tiger',
+                meaning: '老虎',
+                options: ['大象', '狮子', '老虎', '长颈鹿']
+            },
+            {
+                word: 'giraffe',
+                meaning: '长颈鹿',
+                options: ['大象', '狮子', '老虎', '长颈鹿']
+            },
+            {
+                word: 'monkey',
+                meaning: '猴子',
+                options: ['猴子', '熊猫', '袋鼠', '考拉']
+            },
+            {
+                word: 'panda',
+                meaning: '熊猫',
+                options: ['猴子', '熊猫', '袋鼠', '考拉']
+            },
+            {
+                word: 'kangaroo',
+                meaning: '袋鼠',
+                options: ['猴子', '熊猫', '袋鼠', '考拉']
+            },
+            {
+                word: 'koala',
+                meaning: '考拉',
+                options: ['猴子', '熊猫', '袋鼠', '考拉']
+            },
+            // 学科
+            {
+                word: 'mathematics',
+                meaning: '数学',
+                options: ['数学', '语文', '英语', '物理']
+            },
+            {
+                word: 'chinese',
+                meaning: '语文',
+                options: ['数学', '语文', '英语', '物理']
+            },
+            {
+                word: 'english',
+                meaning: '英语',
+                options: ['数学', '语文', '英语', '物理']
+            },
+            {
+                word: 'physics',
+                meaning: '物理',
+                options: ['数学', '语文', '英语', '物理']
+            },
+            {
+                word: 'chemistry',
+                meaning: '化学',
+                options: ['化学', '生物', '历史', '地理']
+            },
+            {
+                word: 'biology',
+                meaning: '生物',
+                options: ['化学', '生物', '历史', '地理']
+            },
+            {
+                word: 'history',
+                meaning: '历史',
+                options: ['化学', '生物', '历史', '地理']
+            },
+            {
+                word: 'geography',
+                meaning: '地理',
+                options: ['化学', '生物', '历史', '地理']
+            },
+            // 职业
+            {
+                word: 'doctor',
+                meaning: '医生',
+                options: ['医生', '教师', '警察', '厨师']
+            },
+            {
+                word: 'teacher',
+                meaning: '教师',
+                options: ['医生', '教师', '警察', '厨师']
+            },
+            {
+                word: 'policeman',
+                meaning: '警察',
+                options: ['医生', '教师', '警察', '厨师']
+            },
+            {
+                word: 'chef',
+                meaning: '厨师',
+                options: ['医生', '教师', '警察', '厨师']
+            },
+            {
+                word: 'nurse',
+                meaning: '护士',
+                options: ['护士', '司机', '演员', '歌手']
+            },
+            {
+                word: 'driver',
+                meaning: '司机',
+                options: ['护士', '司机', '演员', '歌手']
+            },
+            {
+                word: 'actor',
+                meaning: '演员',
+                options: ['护士', '司机', '演员', '歌手']
+            },
+            {
+                word: 'singer',
+                meaning: '歌手',
+                options: ['护士', '司机', '演员', '歌手']
+            },
+            // 颜色
+            {
+                word: 'red',
+                meaning: '红色',
+                options: ['红色', '蓝色', '黄色', '绿色']
+            },
+            {
+                word: 'blue',
+                meaning: '蓝色',
+                options: ['红色', '蓝色', '黄色', '绿色']
+            },
+            {
+                word: 'yellow',
+                meaning: '黄色',
+                options: ['红色', '蓝色', '黄色', '绿色']
+            },
+            {
+                word: 'green',
+                meaning: '绿色',
+                options: ['红色', '蓝色', '黄色', '绿色']
+            },
+            {
+                word: 'purple',
+                meaning: '紫色',
+                options: ['紫色', '橙色', '粉色', '黑色']
+            },
+            {
+                word: 'orange',
+                meaning: '橙色',
+                options: ['紫色', '橙色', '粉色', '黑色']
+            },
+            {
+                word: 'pink',
+                meaning: '粉色',
+                options: ['紫色', '橙色', '粉色', '黑色']
+            },
+            {
+                word: 'black',
+                meaning: '黑色',
+                options: ['紫色', '橙色', '粉色', '黑色']
+            },
+            // 交通工具
+            {
+                word: 'car',
+                meaning: '汽车',
+                options: ['汽车', '自行车', '公交车', '火车']
+            },
+            {
+                word: 'bicycle',
+                meaning: '自行车',
+                options: ['汽车', '自行车', '公交车', '火车']
+            },
+            {
+                word: 'bus',
+                meaning: '公交车',
+                options: ['汽车', '自行车', '公交车', '火车']
+            },
+            {
+                word: 'train',
+                meaning: '火车',
+                options: ['汽车', '自行车', '公交车', '火车']
+            },
+            {
+                word: 'plane',
+                meaning: '飞机',
+                options: ['飞机', '轮船', '地铁', '摩托车']
+            },
+            {
+                word: 'ship',
+                meaning: '轮船',
+                options: ['飞机', '轮船', '地铁', '摩托车']
+            },
+            {
+                word: 'subway',
+                meaning: '地铁',
+                options: ['飞机', '轮船', '地铁', '摩托车']
+            },
+            {
+                word: 'motorcycle',
+                meaning: '摩托车',
+                options: ['飞机', '轮船', '地铁', '摩托车']
+            },
+            // 食物
+            {
+                word: 'bread',
+                meaning: '面包',
+                options: ['面包', '蛋糕', '披萨', '汉堡']
+            },
+            {
+                word: 'cake',
+                meaning: '蛋糕',
+                options: ['面包', '蛋糕', '披萨', '汉堡']
+            },
+            {
+                word: 'pizza',
+                meaning: '披萨',
+                options: ['面包', '蛋糕', '披萨', '汉堡']
+            },
+            {
+                word: 'hamburger',
+                meaning: '汉堡',
+                options: ['面包', '蛋糕', '披萨', '汉堡']
+            },
+            {
+                word: 'fries',
+                meaning: '薯条',
+                options: ['薯条', '冰淇淋', '巧克力', '水果沙拉']
+            },
+            {
+                word: 'ice - cream',
+                meaning: '冰淇淋',
+                options: ['薯条', '冰淇淋', '巧克力', '水果沙拉']
+            },
+            {
+                word: 'chocolate',
+                meaning: '巧克力',
+                options: ['薯条', '冰淇淋', '巧克力', '水果沙拉']
+            },
+            {
+                word: 'fruit salad',
+                meaning: '水果沙拉',
+                options: ['薯条', '冰淇淋', '巧克力', '水果沙拉']
+            },
+            // 天体
+            {
+                word: 'sun',
+                meaning: '太阳',
+                options: ['太阳', '月亮', '星星', '地球']
+            },
+            {
+                word: 'moon',
+                meaning: '月亮',
+                options: ['太阳', '月亮', '星星', '地球']
+            },
+            {
+                word: 'star',
+                meaning: '星星',
+                options: ['太阳', '月亮', '星星', '地球']
+            },
+            {
+                word: 'earth',
+                meaning: '地球',
+                options: ['太阳', '月亮', '星星', '地球']
+            },
+            {
+                word: 'mars',
+                meaning: '火星',
+                options: ['火星', '金星', '木星', '土星']
+            },
+            {
+                word: 'venus',
+                meaning: '金星',
+                options: ['火星', '金星', '木星', '土星']
+            },
+            {
+                word: 'jupiter',
+                meaning: '木星',
+                options: ['火星', '金星', '木星', '土星']
+            },
+            {
+                word: 'saturn',
+                meaning: '土星',
+                options: ['火星', '金星', '木星', '土星']
+            },
+            // 季节
+            {
+                word: 'spring',
+                meaning: '春天',
+                options: ['春天', '夏天', '秋天', '冬天']
+            },
+            {
+                word: 'summer',
+                meaning: '夏天',
+                options: ['春天', '夏天', '秋天', '冬天']
+            },
+            {
+                word: 'autumn',
+                meaning: '秋天',
+                options: ['春天', '夏天', '秋天', '冬天']
+            },
+            {
+                word: 'winter',
+                meaning: '冬天',
+                options: ['春天', '夏天', '秋天', '冬天']
+            },
+            {
+                word: 'rainy season',
+                meaning: '雨季',
+                options: ['雨季', '旱季', '花季', '雪季']
+            },
+            {
+                word: 'dry season',
+                meaning: '旱季',
+                options: ['雨季', '旱季', '花季', '雪季']
+            },
+            {
+                word: 'flowering season',
+                meaning: '花季',
+                options: ['雨季', '旱季', '花季', '雪季']
+            },
+            {
+                word: 'snowy season',
+                meaning: '雪季',
+                options: ['雨季', '旱季', '花季', '雪季']
+            },
+            // 乐器
+            {
+                word: 'piano',
+                meaning: '钢琴',
+                options: ['钢琴', '小提琴', '吉他', '鼓']
+            },
+            {
+                word: 'violin',
+                meaning: '小提琴',
+                options: ['钢琴', '小提琴', '吉他', '鼓']
+            },
+            {
+                word: 'guitar',
+                meaning: '吉他',
+                options: ['钢琴', '小提琴', '吉他', '鼓']
+            },
+            {
+                word: 'drum',
+                meaning: '鼓',
+                options: ['钢琴', '小提琴', '吉他', '鼓']
+            },
+            {
+                word: 'saxophone',
+                meaning: '萨克斯风',
+                options: ['萨克斯风', '长笛', '二胡', '古筝']
+            },
+            {
+                word: 'flute',
+                meaning: '长笛',
+                options: ['萨克斯风', '长笛', '二胡', '古筝']
+            },
+            {
+                word: 'erhu',
+                meaning: '二胡',
+                options: ['萨克斯风', '长笛', '二胡', '古筝']
+            },
+            {
+                word: 'guzheng',
+                meaning: '古筝',
+                options: ['萨克斯风', '长笛', '二胡', '古筝']
+            },
+            // 数字
+            {
+                word: 'one',
+                meaning: '一',
+                options: ['一', '二', '三', '四']
+            },
+            {
+                word: 'two',
+                meaning: '二',
+                options: ['一', '二', '三', '四']
+            },
+            {
+                word: 'three',
+                meaning: '三',
+                options: ['一', '二', '三', '四']
+            },
+            {
+                word: 'four',
+                meaning: '四',
+                options: ['一', '二', '三', '四']
+            },
+            {
+                word: 'five',
+                meaning: '五',
+                options: ['五', '六', '七', '八']
+            },
+            {
+                word: 'six',
+                meaning: '六',
+                options: ['五', '六', '七', '八']
+            },
+            {
+                word: 'seven',
+                meaning: '七',
+                options: ['五', '六', '七', '八']
+            },
+            {
+                word: 'eight',
+                meaning: '八',
+                options: ['五', '六', '七', '八']
+            },
+            // 方位
+            {
+                word: 'east',
+                meaning: '东',
+                options: ['东', '南', '西', '北']
+            },
+            {
+                word: 'south',
+                meaning: '南',
+                options: ['东', '南', '西', '北']
+            },
+            {
+                word: 'west',
+                meaning: '西',
+                options: ['东', '南', '西', '北']
+            },
+            {
+                word: 'north',
+                meaning: '北',
+                options: ['东', '南', '西', '北']
+            },
+            {
+                word: 'southeast',
+                meaning: '东南',
+                options: ['东南', '东北', '西南', '西北']
+            },
+            {
+                word: 'northeast',
+                meaning: '东北',
+                options: ['东南', '东北', '西南', '西北']
+            },
+            {
+                word: 'southwest',
+                meaning: '西南',
+                options: ['东南', '东北', '西南', '西北']
+            },            
+                   ];
+        const shuffledWords = shuffleArray([...words]);
+        let currentIndex = 0;
+
+        const wordElement = document.getElementById('word');
+        const optionsContainer = document.getElementById('options-container');
+        const wordCard = document.getElementById('word-card');
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function speakWord(word) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(word);
+            synth.speak(utterance);
+        }
+        const container = document.querySelector('.container');
+        function displayWord() {
+            if (currentIndex >= shuffledWords.length) {
+                alert('所有单词已学习完毕！');
+                return;
+            }
+            const currentWord = shuffledWords[currentIndex];
+            wordElement.textContent = currentWord.word;
+            speakWord(currentWord.word);
+
+            const shuffledOptions = shuffleArray([...currentWord.options]);
+            optionsContainer.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => checkAnswer(optionElement, option, currentWord.meaning));
+                optionsContainer.appendChild(optionElement);
+            });
+            // 设置单词背景框宽度等于选项容器宽度
+            setTimeout(() => {
+                wordCard.style.width = 'fit-content';
+                const container = document.querySelector('.container');
+                container.style.width = 'fit-content';
+            }, 0);
+        }
+
+        function checkAnswer(optionElement, selectedOption, correctAnswer) {
+            if (selectedOption === correctAnswer) {
+                optionElement.classList.add('correct');
+                optionElement.innerHTML += ' <i class="fa-solid fa-check"></i>';
+                setTimeout(() => {
+                    currentIndex++;
+                    displayWord();
+                }, 1000);
+            } else {
+                optionElement.classList.add('incorrect');
+                optionElement.innerHTML += ' <i class="fa-solid fa-xmark"></i>';
+            }
+        }
+
+        // 窗口大小改变时更新单词背景框宽度
+        window.addEventListener('resize', () => {
+                wordCard.style.width = 'fit-content';
+                const container = document.querySelector('.container');
+                container.style.width = 'fit-content';
+
+        });
+
+        displayWord();
+    </script>
+</body>
+
+</html>
+    
